@@ -3,9 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan de Ejercicio para Principiantes</title>
+    <title>Rutina de Ejercicio 💖</title>
+    <meta name="description" content="Rutina de cuerpo completo para principiantes con temporizador de descanso, seguimiento de progreso e instrucciones detalladas de cada ejercicio.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-pink':  '#FF69B4',
+                        'soft-pink': '#FFB6C1',
+                        'blush':     '#FFF5F7',
+                        'pale-pink': '#FFE4E9',
+                        'baby-pink': '#FFE0E9',
+                        'rose-gold': '#B76E79',
+                        'dark-rose': '#5C3344',
+                        'mauve':     '#8B5A7C',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        body { font-family: 'Quicksand', sans-serif; }
+
         /* Transiciones para expandir video */
         .video-wrapper {
             max-height: 0;
@@ -31,6 +55,7 @@
         .aspect-w-16 iframe { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; }
 
         /* Estilo checkbox */
+        input[type="checkbox"] { accent-color: #FF69B4; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #9ca3af; }
 
         /* Overlay del temporizador de descanso */
@@ -38,7 +63,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(92, 51, 68, 0.65);
             z-index: 50;
             align-items: flex-end;
             justify-content: center;
@@ -53,27 +78,51 @@
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
+
+        /* Gradiente de encabezado rosa */
+        .header-gradient {
+            background: linear-gradient(135deg, #FF69B4 0%, #FF85A1 50%, #FFB6C1 100%);
+        }
+
+        /* Barra de progreso rosa */
+        .progress-fill {
+            background: linear-gradient(90deg, #FF69B4 0%, #FF85A1 100%);
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.45);
+        }
+
+        /* Sombra rosada para la tarjeta principal */
+        .card-shadow {
+            box-shadow: 0 4px 24px rgba(255, 105, 180, 0.15);
+        }
+
+        /* Animación de destello */
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.85); }
+        }
+        .sparkle { animation: sparkle 2.2s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen py-6 px-4 font-sans text-slate-800">
+<body class="min-h-screen py-6 px-4" style="background-color:#FFF5F7; color:#5C3344;">
 
     <!-- ── Temporizador de Descanso (hoja inferior móvil) ── -->
     <div id="rest-timer-overlay">
-        <div class="bg-white w-full max-w-md rounded-t-2xl p-6 text-center shadow-2xl">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tiempo de Descanso</p>
-            <h2 id="rest-exercise-name" class="text-base font-semibold text-slate-700 mb-4 truncate px-2"></h2>
+        <div class="w-full max-w-md rounded-t-2xl p-6 text-center shadow-2xl border-t-4"
+             style="background:white; border-color:#FF69B4;">
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">⏱️ Tiempo de Descanso</p>
+            <h2 id="rest-exercise-name" class="text-base font-semibold mb-4 truncate px-2" style="color:#5C3344;"></h2>
 
             <!-- Anillo de progreso circular -->
             <div class="flex justify-center mb-5">
                 <div class="relative w-36 h-36">
                     <svg class="w-36 h-36" viewBox="0 0 120 120">
-                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#FFD6E7" stroke-width="8"/>
                         <circle id="timer-ring" class="timer-ring-circle" cx="60" cy="60" r="54"
-                            fill="none" stroke="#4f46e5" stroke-width="8"
+                            fill="none" stroke="#FF69B4" stroke-width="8"
                             stroke-dasharray="339.29" stroke-dashoffset="0"/>
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <span id="rest-timer-display" class="text-4xl font-bold text-slate-800 tabular-nums">1:00</span>
+                        <span id="rest-timer-display" class="text-4xl font-bold tabular-nums" style="color:#5C3344;">1:00</span>
                     </div>
                 </div>
             </div>
@@ -81,21 +130,30 @@
             <!-- Controles -->
             <div class="flex gap-3 mb-4">
                 <button onclick="addRestTime(30)"
-                    class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-colors">
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFE4E9; color:#5C3344;"
+                    onmouseover="this.style.background='#FFD6E7'" onmouseout="this.style.background='#FFE4E9'">
                     +30s
                 </button>
                 <button id="rest-pause-btn" onclick="toggleRestPause()"
-                    class="flex-1 py-3 bg-indigo-100 hover:bg-indigo-200 active:bg-indigo-300 text-indigo-700 font-semibold rounded-xl text-sm transition-colors">
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFB6C1; color:#5C3344;"
+                    onmouseover="this.style.background='#FF85A1'; this.style.color='white'" onmouseout="this.style.background='#FFB6C1'; this.style.color='#5C3344'">
                     Pausar
                 </button>
                 <button onclick="skipRest()"
-                    class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-colors">
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFE4E9; color:#5C3344;"
+                    onmouseover="this.style.background='#FFD6E7'" onmouseout="this.style.background='#FFE4E9'">
                     Saltar
                 </button>
             </div>
 
             <!-- Alternar sonido -->
-            <button onclick="toggleSound()" class="text-xs text-slate-400 hover:text-slate-600 flex items-center justify-center gap-1 mx-auto py-2 min-h-[44px]">
+            <button onclick="toggleSound()"
+                class="text-xs flex items-center justify-center gap-1 mx-auto py-2 min-h-[44px] transition-colors"
+                style="color:#B76E79;"
+                onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
                 <span id="sound-icon">🔔</span>
                 <span id="sound-label">Sonido activado</span>
             </button>
@@ -103,35 +161,42 @@
     </div>
 
     <!-- ── Tarjeta principal ── -->
-    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl overflow-hidden card-shadow border border-pink-100">
 
         <!-- Encabezado -->
-        <div class="bg-indigo-600 p-6 text-white text-center">
-            <h1 class="text-2xl font-bold tracking-wide">Rutina de Cuerpo Completo</h1>
-            <p class="text-indigo-200 mt-1 text-sm">Amigable para principiantes • Marca conforme avances</p>
+        <div class="header-gradient p-6 text-white text-center relative overflow-hidden">
+            <div class="absolute top-2 left-4 text-2xl sparkle opacity-75">✨</div>
+            <div class="absolute top-4 right-6 text-xl sparkle opacity-65" style="animation-delay:0.6s;">💕</div>
+            <div class="absolute bottom-3 left-8 text-lg opacity-55" style="animation-delay:1.1s;">🌸</div>
+            <div class="absolute bottom-2 right-4 text-2xl sparkle opacity-65" style="animation-delay:1.7s;">✨</div>
+
+            <h1 class="text-2xl font-bold tracking-wide">💖 Rutina de Cuerpo Completo</h1>
+            <p class="mt-1 text-sm" style="opacity:0.92;">Amigable para principiantes • Marca conforme avances 🎀</p>
         </div>
 
         <!-- Barra de progreso + temporizador global -->
-        <div class="bg-slate-100 p-4 border-b border-slate-200">
+        <div class="p-4 border-b" style="background:#FFF0F5; border-color:#FFD6E7;">
             <div class="flex items-center justify-between mb-2">
-                <span id="progress-text" class="text-sm font-medium text-slate-600">0 / 6</span>
-                <span id="global-timer-display" class="text-sm font-semibold text-indigo-600 hidden">
+                <span id="progress-text" class="text-sm font-bold" style="color:#B76E79;">0 / 6</span>
+                <span id="global-timer-display" class="text-sm font-semibold hidden" style="color:#FF69B4;">
                     ⏱ Tiempo: <span id="global-timer-value" class="tabular-nums">0:00</span>
                 </span>
             </div>
-            <div class="w-full bg-slate-300 rounded-full h-2.5">
-                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <div class="w-full rounded-full h-3 overflow-hidden" style="background:#FFD6E7;">
+                <div id="progress-bar" class="progress-fill h-3 rounded-full transition-all duration-500" style="width:0%;"></div>
             </div>
         </div>
 
         <!-- Lista de ejercicios -->
-        <div id="workout-list" class="divide-y divide-slate-100"></div>
+        <div id="workout-list" class="divide-y" style="border-color:#FFF0F5;"></div>
 
         <!-- Pie de página -->
-        <div class="p-6 bg-slate-50 text-center border-t border-slate-200">
+        <div class="p-5 text-center border-t" style="background:#FFF5F7; border-color:#FFD6E7;">
             <button onclick="resetProgress()"
-                class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors min-h-[44px]">
-                ↺ Reiniciar Progreso del Ejercicio
+                class="text-sm font-bold transition-colors min-h-[44px]"
+                style="color:#B76E79;"
+                onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
+                🔄 Reiniciar Progreso del Ejercicio
             </button>
         </div>
     </div>
@@ -219,7 +284,7 @@
                 name: "Caminata Inclinada",
                 sets: "5 minutos",
                 videoId: null,
-                note: "Enfriamiento — ¡termina con fuerza!",
+                note: "Enfriamiento — ¡termina con fuerza! 💪",
                 difficulty: "Principiante",
                 target: "Cardiovascular, Piernas (ligero)",
                 instructions: [
@@ -246,7 +311,7 @@
         let restSecondsLeft   = 0;
         let restTotalSeconds  = 60;
         let restPaused        = false;
-        let soundEnabled      = localStorage.getItem('sound_enabled') !== 'false'; // predeterminado: activo
+        let soundEnabled      = localStorage.getItem('sound_enabled') !== 'false';
         let audioCtx          = null;
 
         // ── Temporizador Global ───────────────────────────────────────────────────
@@ -322,7 +387,7 @@
             const offset = circumference * (1 - pct);
             const ring   = document.getElementById('timer-ring');
             ring.style.strokeDashoffset = offset;
-            ring.style.stroke = restSecondsLeft <= 10 ? '#ef4444' : '#4f46e5';
+            ring.style.stroke = restSecondsLeft <= 10 ? '#B76E79' : '#FF69B4';
         }
 
         function onRestComplete() {
@@ -407,7 +472,7 @@
         }
 
         function resetProgress() {
-            if (confirm('¿Estás segura que quieres reiniciar el progreso de hoy?')) {
+            if (confirm('¿Estás segura que quieres reiniciar el progreso de hoy? 💕')) {
                 progress = {};
                 saveProgress();
                 stopGlobalTimer();
@@ -446,15 +511,18 @@
                 if (workout.videoId) {
                     videoBtnHtml = `
                         <button onclick="toggleVideo('${workout.id}')"
-                            class="min-h-[44px] text-sm flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                            class="min-h-[44px] text-sm flex items-center font-bold transition-colors"
+                            style="color:#FF69B4;"
+                            onmouseover="this.style.color='#B76E79'" onmouseout="this.style.color='#FF69B4'">
                             <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                    clip-rule="evenodd" fill-rule="evenodd"></path>
                             </svg>
-                            Tutorial
+                            🎀 Tutorial
                         </button>`;
                     videoHtml = `
                         <div id="video-${workout.id}" class="video-wrapper">
-                            <div class="aspect-w-16 rounded-lg overflow-hidden bg-slate-900">
+                            <div class="aspect-w-16 rounded-xl overflow-hidden" style="background:#1f2937;">
                                 <iframe src="https://www.youtube.com/embed/${workout.videoId}"
                                     frameborder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -465,51 +533,57 @@
 
                 // Sección de detalles
                 const stepsHtml = workout.instructions.map((step, i) =>
-                    `<li class="flex gap-2 text-slate-600">
-                        <span class="font-bold text-indigo-500 flex-shrink-0 w-5 text-right">${i + 1}.</span>
+                    `<li class="flex gap-2" style="color:#5C3344;">
+                        <span class="font-bold flex-shrink-0 w-5 text-right" style="color:#FF69B4;">${i + 1}.</span>
                         <span>${step}</span>
                     </li>`
                 ).join('');
 
                 const detailsHtml = `
                     <div id="details-${workout.id}" class="details-wrapper">
-                        <div class="bg-slate-50 rounded-xl p-4 mt-3 text-sm space-y-3">
+                        <div class="rounded-xl p-4 mt-3 text-sm space-y-3 border" style="background:#FFF5F7; border-color:#FFE0E9;">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-semibold">${workout.difficulty}</span>
-                                <span class="text-slate-500 text-xs">🎯 ${workout.target}</span>
+                                <span class="px-2 py-0.5 rounded-full text-xs font-bold"
+                                    style="background:#FFE4E9; color:#B76E79;">✨ ${workout.difficulty}</span>
+                                <span class="text-xs" style="color:#8B5A7C;">🎯 ${workout.target}</span>
                             </div>
                             <div>
-                                <p class="font-semibold text-slate-700 mb-1.5">Instrucciones:</p>
+                                <p class="font-bold mb-1.5" style="color:#5C3344;">📋 Instrucciones:</p>
                                 <ol class="space-y-1.5">${stepsHtml}</ol>
                             </div>
                             <div>
-                                <p class="font-semibold text-slate-700 mb-1">💡 Consejo:</p>
-                                <p class="text-slate-600">${workout.tips}</p>
+                                <p class="font-bold mb-1" style="color:#5C3344;">💡 Consejo:</p>
+                                <p style="color:#5C3344;">${workout.tips}</p>
                             </div>
                         </div>
                     </div>`;
 
                 const extraNote = workout.note
-                    ? `<p class="text-xs text-slate-500 mt-1">${workout.note}</p>`
+                    ? `<p class="text-xs mt-1 font-semibold" style="color:#B76E79;">${workout.note}</p>`
                     : '';
 
                 const html = `
-                    <div class="p-4 md:p-5 hover:bg-slate-50 transition-colors">
+                    <div class="p-4 md:p-5 transition-colors"
+                        onmouseover="this.style.background='#FFF5F7'" onmouseout="this.style.background='white'">
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
                                 <input type="checkbox" id="check-${workout.id}" ${isChecked}
-                                    class="w-6 h-6 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                    class="w-6 h-6 cursor-pointer rounded"
+                                    style="accent-color:#FF69B4;"
                                     onchange="onExerciseChecked('${workout.id}', this.checked)">
                             </div>
                             <div class="ml-4 flex-1 min-w-0">
                                 <label for="check-${workout.id}" class="cursor-pointer block">
-                                    <span class="text-base font-semibold text-slate-800 block">${workout.name}</span>
-                                    <span class="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">${workout.sets}</span>
+                                    <span class="text-base font-bold block" style="color:#5C3344;">${workout.name}</span>
+                                    <span class="text-sm font-semibold px-2 py-0.5 rounded-lg inline-block mt-1"
+                                        style="background:#FFE4E9; color:#B76E79;">${workout.sets}</span>
                                 </label>
                                 ${extraNote}
                                 <div class="flex flex-wrap gap-x-4">
                                     <button onclick="toggleDetails('${workout.id}')"
-                                        class="min-h-[44px] text-sm flex items-center text-slate-500 hover:text-indigo-600 font-medium transition-colors">
+                                        class="min-h-[44px] text-sm flex items-center font-bold transition-colors"
+                                        style="color:#FF85A1;"
+                                        onmouseover="this.style.color='#B76E79'" onmouseout="this.style.color='#FF85A1'">
                                         <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
