@@ -14,14 +14,14 @@
             theme: {
                 extend: {
                     colors: {
-                        'gym-pink': '#FF69B4',
+                        'gym-pink':  '#FF69B4',
                         'soft-pink': '#FFB6C1',
-                        'blush': '#FFF5F7',
+                        'blush':     '#FFF5F7',
                         'pale-pink': '#FFE4E9',
                         'baby-pink': '#FFE0E9',
                         'rose-gold': '#B76E79',
                         'dark-rose': '#5C3344',
-                        'mauve': '#8B5A7C',
+                        'mauve':     '#8B5A7C',
                     }
                 }
             }
@@ -30,7 +30,7 @@
     <style>
         body { font-family: 'Quicksand', sans-serif; }
 
-        /* Transiciones suaves para expandir el video */
+        /* Transiciones para expandir video */
         .video-wrapper {
             max-height: 0;
             overflow: hidden;
@@ -40,22 +40,44 @@
             max-height: 500px;
             margin-top: 1rem;
         }
-        .aspect-w-16 { position: relative; padding-bottom: 56.25%; }
-        .aspect-w-16 iframe { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; }
 
-        /* Sección de detalles expandible */
+        /* Transiciones para expandir detalles */
         .details-wrapper {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
+            transition: max-height 0.45s ease-in-out;
         }
         .details-wrapper.open {
             max-height: 800px;
         }
 
-        /* Estilo personalizado para checkbox */
+        .aspect-w-16 { position: relative; padding-bottom: 56.25%; }
+        .aspect-w-16 iframe { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Estilo checkbox */
         input[type="checkbox"] { accent-color: #FF69B4; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #9ca3af; }
+
+        /* Overlay del temporizador de descanso */
+        #rest-timer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(92, 51, 68, 0.65);
+            z-index: 50;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        #rest-timer-overlay.active {
+            display: flex;
+        }
+
+        /* Anillo del temporizador */
+        .timer-ring-circle {
+            transition: stroke-dashoffset 1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
 
         /* Gradiente de encabezado rosa */
         .header-gradient {
@@ -79,17 +101,66 @@
             50% { opacity: 0.55; transform: scale(0.85); }
         }
         .sparkle { animation: sparkle 2.2s ease-in-out infinite; }
-
-        /* Animación de pulso del temporizador */
-        @keyframes pulse-pink {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.45); }
-            50% { box-shadow: 0 0 0 8px rgba(255, 105, 180, 0); }
-        }
-        .timer-pulse { animation: pulse-pink 2s ease-in-out infinite; }
     </style>
 </head>
 <body class="min-h-screen py-6 px-4" style="background-color:#FFF5F7; color:#5C3344;">
 
+    <!-- ── Temporizador de Descanso (hoja inferior móvil) ── -->
+    <div id="rest-timer-overlay">
+        <div class="w-full max-w-md rounded-t-2xl p-6 text-center shadow-2xl border-t-4"
+             style="background:white; border-color:#FF69B4;">
+            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">⏱️ Tiempo de Descanso</p>
+            <h2 id="rest-exercise-name" class="text-base font-semibold mb-4 truncate px-2" style="color:#5C3344;"></h2>
+
+            <!-- Anillo de progreso circular -->
+            <div class="flex justify-center mb-5">
+                <div class="relative w-36 h-36">
+                    <svg class="w-36 h-36" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#FFD6E7" stroke-width="8"/>
+                        <circle id="timer-ring" class="timer-ring-circle" cx="60" cy="60" r="54"
+                            fill="none" stroke="#FF69B4" stroke-width="8"
+                            stroke-dasharray="339.29" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="rest-timer-display" class="text-4xl font-bold tabular-nums" style="color:#5C3344;">1:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="flex gap-3 mb-4">
+                <button onclick="addRestTime(30)"
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFE4E9; color:#5C3344;"
+                    onmouseover="this.style.background='#FFD6E7'" onmouseout="this.style.background='#FFE4E9'">
+                    +30s
+                </button>
+                <button id="rest-pause-btn" onclick="toggleRestPause()"
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFB6C1; color:#5C3344;"
+                    onmouseover="this.style.background='#FF85A1'; this.style.color='white'" onmouseout="this.style.background='#FFB6C1'; this.style.color='#5C3344'">
+                    Pausar
+                </button>
+                <button onclick="skipRest()"
+                    class="flex-1 py-3 font-semibold rounded-xl text-sm transition-colors"
+                    style="background:#FFE4E9; color:#5C3344;"
+                    onmouseover="this.style.background='#FFD6E7'" onmouseout="this.style.background='#FFE4E9'">
+                    Saltar
+                </button>
+            </div>
+
+            <!-- Alternar sonido -->
+            <button onclick="toggleSound()"
+                class="text-xs flex items-center justify-center gap-1 mx-auto py-2 min-h-[44px] transition-colors"
+                style="color:#B76E79;"
+                onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
+                <span id="sound-icon">🔔</span>
+                <span id="sound-label">Sonido activado</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Tarjeta principal ── -->
     <div class="max-w-2xl mx-auto bg-white rounded-2xl overflow-hidden card-shadow border border-pink-100">
 
         <!-- Encabezado -->
@@ -101,155 +172,110 @@
 
             <h1 class="text-2xl font-bold tracking-wide">💖 Rutina de Cuerpo Completo</h1>
             <p class="mt-1 text-sm" style="opacity:0.92;">Amigable para principiantes • Marca conforme avances 🎀</p>
-
-            <!-- Temporizador global -->
-            <div class="mt-3 inline-flex items-center bg-white bg-opacity-20 rounded-full px-4 py-1.5 text-sm font-semibold">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Tiempo: <span id="global-timer" class="ml-1">00:00</span>
-            </div>
         </div>
 
-        <!-- Barra de progreso -->
-        <div class="p-4 border-b flex items-center justify-between" style="background:#FFF0F5; border-color:#FFD6E7;">
-            <div class="w-full rounded-full h-3 mr-4 overflow-hidden" style="background:#FFD6E7;">
+        <!-- Barra de progreso + temporizador global -->
+        <div class="p-4 border-b" style="background:#FFF0F5; border-color:#FFD6E7;">
+            <div class="flex items-center justify-between mb-2">
+                <span id="progress-text" class="text-sm font-bold" style="color:#B76E79;">0 / 6</span>
+                <span id="global-timer-display" class="text-sm font-semibold hidden" style="color:#FF69B4;">
+                    ⏱ Tiempo: <span id="global-timer-value" class="tabular-nums">0:00</span>
+                </span>
+            </div>
+            <div class="w-full rounded-full h-3 overflow-hidden" style="background:#FFD6E7;">
                 <div id="progress-bar" class="progress-fill h-3 rounded-full transition-all duration-500" style="width:0%;"></div>
             </div>
-            <span id="progress-text" class="text-sm font-bold whitespace-nowrap" style="color:#B76E79;">0 / 6</span>
         </div>
 
         <!-- Lista de ejercicios -->
         <div id="workout-list" class="divide-y" style="border-color:#FFF0F5;"></div>
 
-        <!-- Panel del temporizador de descanso -->
-        <div id="rest-timer-panel" class="hidden border-t p-5" style="background:#FFF5F7; border-color:#FFD6E7;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-bold" style="color:#5C3344;">⏱️ Tiempo de Descanso</p>
-                    <p class="text-xs mt-0.5" style="color:#B76E79;">Descansa antes del siguiente ejercicio</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <!-- Indicador circular del temporizador -->
-                    <div class="relative timer-pulse" style="width:64px;height:64px;">
-                        <svg class="w-full h-full" style="transform:rotate(-90deg);" viewBox="0 0 64 64">
-                            <circle cx="32" cy="32" r="26" fill="none" stroke="#FFD6E7" stroke-width="5"/>
-                            <circle id="timer-circle-progress" cx="32" cy="32" r="26" fill="none"
-                                stroke="#FF69B4" stroke-width="5"
-                                stroke-dasharray="163.36" stroke-dashoffset="0"
-                                style="transition: stroke-dashoffset 1s linear;"/>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span id="rest-timer-display" class="text-lg font-bold" style="color:#5C3344;">60</span>
-                        </div>
-                    </div>
-                    <!-- Controles -->
-                    <div class="flex flex-col gap-2">
-                        <button onclick="skipRestTimer()"
-                            class="text-xs font-bold bg-white border rounded-full px-3 py-1 transition-colors"
-                            style="border-color:#FFB6C1; color:#FF69B4;"
-                            onmouseover="this.style.background='#FFF0F5'" onmouseout="this.style.background='white'">
-                            Saltar ⏭
-                        </button>
-                        <button onclick="addRestTime(30)"
-                            class="text-xs font-bold bg-white border rounded-full px-3 py-1 transition-colors"
-                            style="border-color:#FFB6C1; color:#FF69B4;"
-                            onmouseover="this.style.background='#FFF0F5'" onmouseout="this.style.background='white'">
-                            +30s ➕
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botón de reinicio -->
+        <!-- Pie de página -->
         <div class="p-5 text-center border-t" style="background:#FFF5F7; border-color:#FFD6E7;">
             <button onclick="resetProgress()"
-                class="text-sm font-bold transition-colors"
+                class="text-sm font-bold transition-colors min-h-[44px]"
                 style="color:#B76E79;"
                 onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
                 🔄 Reiniciar Progreso del Ejercicio
             </button>
         </div>
-
     </div>
 
     <script>
-        // Datos de ejercicios con detalles en español mexicano
+        // ── Datos de ejercicios ──────────────────────────────────────────────────
         const workouts = [
             {
                 id: "legpress",
                 name: "Prensa de Piernas",
                 sets: "3 series de 10 repeticiones",
                 videoId: "nDh_BlnLCGc",
-                muscles: "Cuádriceps, Glúteos, Isquiotibiales",
                 difficulty: "Principiante",
+                target: "Cuádriceps, Glúteos, Isquiotibiales",
                 instructions: [
-                    "Siéntate con la espalda recta contra el respaldo",
+                    "Siéntate con la espalda plana contra el respaldo",
                     "Coloca los pies al ancho de los hombros en la plataforma",
                     "Empuja con los talones para extender las piernas",
                     "Baja con control, sin bloquear las rodillas"
                 ],
-                tips: "Mantén la espalda pegada al asiento y no dejes que las rodillas se junten hacia adentro."
+                tips: "Mantén la espalda pegada al asiento y no dejes que las rodillas se doblen hacia adentro."
             },
             {
                 id: "latpull",
                 name: "Jalones Dorsales",
                 sets: "3 series de 10 repeticiones",
                 videoId: "AOpi-p0cJkc",
-                muscles: "Dorsal Ancho (espalda), Bíceps",
                 difficulty: "Principiante",
+                target: "Dorsal Ancho (espalda), Bíceps",
                 instructions: [
                     "Agarra la barra más ancha que el ancho de los hombros",
-                    "Jala la barra hacia el pecho superior",
-                    "Aprieta los omóplatos al juntar",
+                    "Jala la barra hacia la parte superior del pecho",
+                    "Aprieta los omóplatos juntos al bajar",
                     "Regresa al inicio con control"
                 ],
-                tips: "No te inclines demasiado hacia atrás; enfócate en jalar con la espalda, no con los brazos."
+                tips: "No te recuestes demasiado; enfócate en jalar con la espalda, no con los brazos."
             },
             {
                 id: "forwardfly",
                 name: "Apertura Frontal (Pec Deck)",
                 sets: "3 series de 10 repeticiones",
                 videoId: "g3T7LsEeDWQ",
-                muscles: "Pectorales, Deltoides Frontales",
                 difficulty: "Principiante",
+                target: "Pecho (Pectorales), Deltoides Anteriores",
                 instructions: [
-                    "Ajusta el asiento para que las manijas queden a la altura del pecho",
-                    "Junta los brazos frente al pecho",
-                    "Aprieta los músculos del pecho",
+                    "Ajusta el asiento para que los mangos queden a la altura del pecho",
+                    "Presiona los brazos juntos frente al pecho",
+                    "Aprieta los músculos del pecho al cerrar",
                     "Regresa al inicio lentamente"
                 ],
-                tips: "Mantén un ligero doblez en los codos y no dejes que los brazos vayan demasiado hacia atrás."
+                tips: "Mantén una ligera flexión en los codos y no dejes que los brazos vayan demasiado atrás."
             },
             {
                 id: "goblet",
                 name: "Sentadilla con Peso (Goblet)",
                 sets: "3 series de 12 repeticiones",
                 videoId: "9KzZD_n2r64",
-                muscles: "Cuádriceps, Glúteos, Core",
                 difficulty: "Principiante",
+                target: "Cuádriceps, Glúteos, Core",
                 instructions: [
-                    "Sostén la mancuerna frente al pecho",
-                    "Pies al ancho de los hombros",
-                    "Baja las caderas por debajo de la paralela",
+                    "Sostén la mancuerna a la altura del pecho con ambas manos",
+                    "Coloca los pies al ancho de los hombros",
+                    "Baja las caderas hasta quedar por debajo del paralelo",
                     "Empuja con los talones para ponerte de pie"
                 ],
-                tips: "Mantén el pecho erguido, el peso en los talones y las rodillas alineadas con los pies."
+                tips: "Mantén el pecho arriba, el peso en los talones y las rodillas alineadas con los pies."
             },
             {
                 id: "rdl",
                 name: "Peso Muerto con Mancuernas (RDL)",
                 sets: "3 series de 10 repeticiones",
                 videoId: "hQgFixeXdZo",
-                muscles: "Isquiotibiales, Glúteos, Espalda Baja",
                 difficulty: "Principiante",
+                target: "Isquiotibiales, Glúteos, Zona Lumbar",
                 instructions: [
                     "Sostén las mancuernas frente a los muslos",
-                    "Bisagra en las caderas con ligera flexión de rodilla",
+                    "Inclínate desde las caderas con leve flexión de rodillas",
                     "Baja las pesas a lo largo de las piernas",
-                    "Siente el estiramiento en los isquiotibiales y regresa de pie"
+                    "Siente el estiramiento en los isquiotibiales y regresa a la posición inicial"
                 ],
                 tips: "Mantén la espalda recta, empuja las caderas hacia atrás (no hacia abajo) y no redondees la espalda."
             },
@@ -258,150 +284,220 @@
                 name: "Caminata Inclinada",
                 sets: "5 minutos",
                 videoId: null,
-                note: "Enfriamiento para terminar con fuerza. 💪",
-                muscles: "Cardiovascular, Piernas (trabajo ligero)",
+                note: "Enfriamiento — ¡termina con fuerza! 💪",
                 difficulty: "Principiante",
+                target: "Cardiovascular, Piernas (ligero)",
                 instructions: [
-                    "Ajusta la caminadora a 8-12% de inclinación",
-                    "Camina a un ritmo cómodo (2.5–3.5 mph)",
-                    "Mantén buena postura con hombros hacia atrás",
-                    "5 minutos continuo"
+                    "Ajusta la caminadora a 8–12 % de inclinación",
+                    "Camina a un ritmo cómodo (4–5.5 km/h)",
+                    "Mantén buena postura con los hombros hacia atrás",
+                    "Continúa durante 5 minutos sin parar"
                 ],
-                tips: "No te agarres de los barandales; mantén los hombros hacia atrás y el abdomen firme."
+                tips: "No te sostengas de los rieles; deja que las piernas hagan el trabajo."
             }
         ];
 
-        // Manejo de estado
+        // ── Estado ───────────────────────────────────────────────────────────────
         let progress = JSON.parse(localStorage.getItem('workout_progress')) || {};
 
-        // Estado del temporizador global
+        // Temporizador global
         let globalTimerInterval = null;
-        let globalTimerSeconds = parseInt(localStorage.getItem('workout_timer_seconds')) || 0;
-        let globalTimerRunning = localStorage.getItem('workout_timer_running') === 'true';
+        let globalTimerStart    = parseInt(localStorage.getItem('workout_timer_start'))   || null;
+        let globalTimerElapsed  = parseInt(localStorage.getItem('workout_timer_elapsed')) || 0;
+        let workoutCompleted    = localStorage.getItem('workout_completed') === 'true';
 
-        // Estado del temporizador de descanso
+        // Temporizador de descanso
         let restTimerInterval = null;
-        let restTimerSeconds = 0;
-        let restTotalSeconds = 60;
-        const REST_DURATION = 60;
+        let restSecondsLeft   = 0;
+        let restTotalSeconds  = 60;
+        let restPaused        = false;
+        let soundEnabled      = localStorage.getItem('sound_enabled') !== 'false';
+        let audioCtx          = null;
 
-        // ---- Temporizador Global ----
-        function formatTime(s) {
-            const m = Math.floor(s / 60).toString().padStart(2, '0');
-            const sec = (s % 60).toString().padStart(2, '0');
-            return `${m}:${sec}`;
+        // ── Temporizador Global ───────────────────────────────────────────────────
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
         }
 
         function startGlobalTimer() {
-            if (globalTimerRunning) return;
-            globalTimerRunning = true;
-            localStorage.setItem('workout_timer_running', 'true');
+            if (globalTimerInterval || workoutCompleted) return;
+            if (!globalTimerStart) {
+                globalTimerStart = Date.now() - (globalTimerElapsed * 1000);
+                localStorage.setItem('workout_timer_start', globalTimerStart);
+            }
+            document.getElementById('global-timer-display').classList.remove('hidden');
             globalTimerInterval = setInterval(() => {
-                globalTimerSeconds++;
-                localStorage.setItem('workout_timer_seconds', globalTimerSeconds);
-                document.getElementById('global-timer').innerText = formatTime(globalTimerSeconds);
+                const elapsed = Math.floor((Date.now() - globalTimerStart) / 1000);
+                globalTimerElapsed = elapsed;
+                localStorage.setItem('workout_timer_elapsed', elapsed);
+                document.getElementById('global-timer-value').textContent = formatTime(elapsed);
             }, 1000);
         }
 
         function stopGlobalTimer() {
-            globalTimerRunning = false;
-            localStorage.setItem('workout_timer_running', 'false');
             clearInterval(globalTimerInterval);
             globalTimerInterval = null;
         }
 
-        function resetGlobalTimer() {
-            stopGlobalTimer();
-            globalTimerSeconds = 0;
-            localStorage.setItem('workout_timer_seconds', 0);
-            document.getElementById('global-timer').innerText = '00:00';
+        function resumeGlobalTimerIfNeeded() {
+            const completed = Object.values(progress).filter(Boolean).length;
+            if (workoutCompleted && globalTimerElapsed > 0) {
+                document.getElementById('global-timer-display').classList.remove('hidden');
+                document.getElementById('global-timer-value').textContent = formatTime(globalTimerElapsed);
+            } else if (completed > 0 && globalTimerStart) {
+                document.getElementById('global-timer-display').classList.remove('hidden');
+                document.getElementById('global-timer-value').textContent =
+                    formatTime(Math.floor((Date.now() - globalTimerStart) / 1000));
+                startGlobalTimer();
+            }
         }
 
-        // ---- Temporizador de Descanso ----
-        function startRestTimer() {
+        // ── Temporizador de Descanso ──────────────────────────────────────────────
+        function startRestTimer(workoutName) {
             clearInterval(restTimerInterval);
-            restTimerSeconds = REST_DURATION;
-            restTotalSeconds = REST_DURATION;
-            updateRestTimerDisplay();
-            const panel = document.getElementById('rest-timer-panel');
-            panel.classList.remove('hidden');
+            restTimerInterval = null;
+            restSecondsLeft  = 60;
+            restTotalSeconds = 60;
+            restPaused       = false;
+
+            document.getElementById('rest-exercise-name').textContent = workoutName;
+            document.getElementById('rest-pause-btn').textContent = 'Pausar';
+            updateRestTimerUI();
+            document.getElementById('rest-timer-overlay').classList.add('active');
+
             restTimerInterval = setInterval(() => {
-                restTimerSeconds--;
-                updateRestTimerDisplay();
-                if (restTimerSeconds <= 0) {
-                    clearInterval(restTimerInterval);
-                    panel.classList.add('hidden');
-                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                if (!restPaused) {
+                    restSecondsLeft--;
+                    updateRestTimerUI();
+                    if (restSecondsLeft <= 0) {
+                        clearInterval(restTimerInterval);
+                        restTimerInterval = null;
+                        onRestComplete();
+                    }
                 }
             }, 1000);
         }
 
-        function updateRestTimerDisplay() {
-            document.getElementById('rest-timer-display').innerText = restTimerSeconds;
-            const circumference = 163.36;
-            const ratio = restTotalSeconds > 0
-                ? Math.min(1, Math.max(0, restTimerSeconds / restTotalSeconds))
-                : 0;
-            document.getElementById('timer-circle-progress').style.strokeDashoffset =
-                circumference * (1 - ratio);
+        function updateRestTimerUI() {
+            document.getElementById('rest-timer-display').textContent = formatTime(restSecondsLeft);
+            const circumference = 339.29;
+            const pct    = restTotalSeconds > 0 ? restSecondsLeft / restTotalSeconds : 0;
+            const offset = circumference * (1 - pct);
+            const ring   = document.getElementById('timer-ring');
+            ring.style.strokeDashoffset = offset;
+            ring.style.stroke = restSecondsLeft <= 10 ? '#B76E79' : '#FF69B4';
         }
 
-        function skipRestTimer() {
-            clearInterval(restTimerInterval);
-            document.getElementById('rest-timer-panel').classList.add('hidden');
+        function onRestComplete() {
+            if (soundEnabled) playBeep();
+            if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+            setTimeout(() => {
+                document.getElementById('rest-timer-overlay').classList.remove('active');
+            }, 1200);
+        }
+
+        function toggleRestPause() {
+            restPaused = !restPaused;
+            document.getElementById('rest-pause-btn').textContent = restPaused ? 'Reanudar' : 'Pausar';
         }
 
         function addRestTime(seconds) {
-            restTimerSeconds += seconds;
-            restTotalSeconds = Math.max(restTotalSeconds, restTimerSeconds);
-            updateRestTimerDisplay();
+            restSecondsLeft  += seconds;
+            restTotalSeconds += seconds;
+            updateRestTimerUI();
         }
 
-        // ---- Progreso ----
+        function skipRest() {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            document.getElementById('rest-timer-overlay').classList.remove('active');
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('sound_enabled', soundEnabled);
+            document.getElementById('sound-icon').textContent  = soundEnabled ? '🔔' : '🔕';
+            document.getElementById('sound-label').textContent = soundEnabled ? 'Sonido activado' : 'Sonido desactivado';
+        }
+
+        function playBeep() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscillator = audioCtx.createOscillator();
+                const gain       = audioCtx.createGain();
+                oscillator.connect(gain);
+                gain.connect(audioCtx.destination);
+                oscillator.type            = 'sine';
+                oscillator.frequency.value = 880;
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.6);
+            } catch (e) { /* Audio no disponible */ }
+        }
+
+        // ── Progreso ─────────────────────────────────────────────────────────────
         function saveProgress() {
             localStorage.setItem('workout_progress', JSON.stringify(progress));
             updateProgressBar();
-            const total = workouts.length;
-            const completed = Object.values(progress).filter(Boolean).length;
-            if (completed === 1) startGlobalTimer();
-            if (completed === total) stopGlobalTimer();
         }
 
         function updateProgressBar() {
-            const total = workouts.length;
+            const total     = workouts.length;
             const completed = Object.values(progress).filter(Boolean).length;
-            const percentage = (completed / total) * 100;
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
-            document.getElementById('progress-text').innerText = `${completed} / ${total}`;
+            const pct       = (completed / total) * 100;
+
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').textContent = `${completed} / ${total}`;
+
+            if (completed === total && total > 0) {
+                workoutCompleted = true;
+                localStorage.setItem('workout_completed', 'true');
+                stopGlobalTimer();
+            }
         }
 
-        function handleCheckboxChange(id, checked) {
+        function onExerciseChecked(id, checked) {
             progress[id] = checked;
             saveProgress();
-            if (checked) startRestTimer();
+            if (checked) {
+                startGlobalTimer();
+                const workout = workouts.find(w => w.id === id);
+                if (workout) startRestTimer(workout.name);
+            }
         }
 
+        function resetProgress() {
+            if (confirm('¿Estás segura que quieres reiniciar el progreso de hoy? 💕')) {
+                progress = {};
+                saveProgress();
+                stopGlobalTimer();
+                globalTimerStart   = null;
+                globalTimerElapsed = 0;
+                workoutCompleted   = false;
+                localStorage.removeItem('workout_timer_start');
+                localStorage.removeItem('workout_timer_elapsed');
+                localStorage.removeItem('workout_completed');
+                document.getElementById('global-timer-display').classList.add('hidden');
+                document.getElementById('global-timer-value').textContent = '0:00';
+                renderWorkouts();
+            }
+        }
+
+        // ── Alternar secciones ───────────────────────────────────────────────────
         function toggleVideo(id) {
             document.getElementById(`video-${id}`).classList.toggle('open');
         }
 
         function toggleDetails(id) {
-            const wrapper = document.getElementById(`details-${id}`);
-            wrapper.classList.toggle('open');
-            const btn = document.getElementById(`details-btn-${id}`);
-            btn.innerText = wrapper.classList.contains('open') ? '▲ Ocultar detalles' : '▼ Ver detalles';
+            document.getElementById(`details-${id}`).classList.toggle('open');
         }
 
-        function resetProgress() {
-            if (confirm("¿Estás segura que quieres reiniciar el progreso de hoy? 💕")) {
-                progress = {};
-                saveProgress();
-                skipRestTimer();
-                resetGlobalTimer();
-                renderWorkouts();
-            }
-        }
-
+        // ── Renderizar ───────────────────────────────────────────────────────────
         function renderWorkouts() {
             const container = document.getElementById('workout-list');
             container.innerHTML = '';
@@ -409,22 +505,21 @@
             workouts.forEach((workout) => {
                 const isChecked = progress[workout.id] ? 'checked' : '';
 
-                let videoHtml = '';
+                // Sección de video
+                let videoHtml    = '';
                 let videoBtnHtml = '';
-
                 if (workout.videoId) {
                     videoBtnHtml = `
                         <button onclick="toggleVideo('${workout.id}')"
-                            class="text-sm flex items-center font-bold mt-2 transition-colors"
+                            class="min-h-[44px] text-sm flex items-center font-bold transition-colors"
                             style="color:#FF69B4;"
                             onmouseover="this.style.color='#B76E79'" onmouseout="this.style.color='#FF69B4'">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
                                     clip-rule="evenodd" fill-rule="evenodd"></path>
                             </svg>
                             🎀 Tutorial
-                        </button>
-                    `;
+                        </button>`;
                     videoHtml = `
                         <div id="video-${workout.id}" class="video-wrapper">
                             <div class="aspect-w-16 rounded-xl overflow-hidden" style="background:#1f2937;">
@@ -433,35 +528,39 @@
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen></iframe>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 }
 
-                const extraNote = workout.note
-                    ? `<p class="text-xs mt-1 font-semibold" style="color:#B76E79;">${workout.note}</p>`
-                    : '';
-
-                const diffBadge = `<span class="text-xs px-2 py-0.5 rounded-full font-bold ml-2"
-                    style="background:#FFE4E9; color:#B76E79;">✨ ${workout.difficulty}</span>`;
-
-                const instructionItems = workout.instructions.map((step, i) =>
-                    `<li class="text-sm mb-1" style="color:#5C3344;">
-                        <span class="font-bold" style="color:#FF69B4;">${i + 1}.</span> ${step}
+                // Sección de detalles
+                const stepsHtml = workout.instructions.map((step, i) =>
+                    `<li class="flex gap-2" style="color:#5C3344;">
+                        <span class="font-bold flex-shrink-0 w-5 text-right" style="color:#FF69B4;">${i + 1}.</span>
+                        <span>${step}</span>
                     </li>`
                 ).join('');
 
                 const detailsHtml = `
-                    <div id="details-${workout.id}" class="details-wrapper mt-1">
-                        <div class="rounded-xl p-3 mt-2 border" style="background:#FFF5F7; border-color:#FFE0E9;">
-                            <p class="text-xs font-bold mb-1" style="color:#B76E79;">💪 Músculos trabajados:</p>
-                            <p class="text-sm mb-2" style="color:#5C3344;">${workout.muscles}</p>
-                            <p class="text-xs font-bold mb-1" style="color:#B76E79;">📋 Instrucciones:</p>
-                            <ol class="list-none pl-0 mb-2">${instructionItems}</ol>
-                            <p class="text-xs font-bold mb-1" style="color:#B76E79;">💡 Tip:</p>
-                            <p class="text-sm" style="color:#5C3344;">${workout.tips}</p>
+                    <div id="details-${workout.id}" class="details-wrapper">
+                        <div class="rounded-xl p-4 mt-3 text-sm space-y-3 border" style="background:#FFF5F7; border-color:#FFE0E9;">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-full text-xs font-bold"
+                                    style="background:#FFE4E9; color:#B76E79;">✨ ${workout.difficulty}</span>
+                                <span class="text-xs" style="color:#8B5A7C;">🎯 ${workout.target}</span>
+                            </div>
+                            <div>
+                                <p class="font-bold mb-1.5" style="color:#5C3344;">📋 Instrucciones:</p>
+                                <ol class="space-y-1.5">${stepsHtml}</ol>
+                            </div>
+                            <div>
+                                <p class="font-bold mb-1" style="color:#5C3344;">💡 Consejo:</p>
+                                <p style="color:#5C3344;">${workout.tips}</p>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
+
+                const extraNote = workout.note
+                    ? `<p class="text-xs mt-1 font-semibold" style="color:#B76E79;">${workout.note}</p>`
+                    : '';
 
                 const html = `
                     <div class="p-4 md:p-5 transition-colors"
@@ -469,54 +568,48 @@
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
                                 <input type="checkbox" id="check-${workout.id}" ${isChecked}
-                                    class="w-5 h-5 cursor-pointer rounded"
+                                    class="w-6 h-6 cursor-pointer rounded"
                                     style="accent-color:#FF69B4;"
-                                    onchange="handleCheckboxChange('${workout.id}', this.checked);">
+                                    onchange="onExerciseChecked('${workout.id}', this.checked)">
                             </div>
-                            <div class="ml-4 flex-1">
+                            <div class="ml-4 flex-1 min-w-0">
                                 <label for="check-${workout.id}" class="cursor-pointer block">
-                                    <span class="text-lg font-bold block" style="color:#5C3344;">
-                                        ${workout.name}${diffBadge}
-                                    </span>
-                                    <span class="text-sm font-semibold px-2 py-1 rounded-lg inline-block mt-1"
-                                        style="background:#FFE4E9; color:#B76E79;">
-                                        ${workout.sets}
-                                    </span>
+                                    <span class="text-base font-bold block" style="color:#5C3344;">${workout.name}</span>
+                                    <span class="text-sm font-semibold px-2 py-0.5 rounded-lg inline-block mt-1"
+                                        style="background:#FFE4E9; color:#B76E79;">${workout.sets}</span>
                                 </label>
                                 ${extraNote}
-                                <div class="flex items-center gap-3 mt-2 flex-wrap">
-                                    ${videoBtnHtml}
-                                    <button id="details-btn-${workout.id}" onclick="toggleDetails('${workout.id}')"
-                                        class="text-sm font-bold transition-colors"
+                                <div class="flex flex-wrap gap-x-4">
+                                    <button onclick="toggleDetails('${workout.id}')"
+                                        class="min-h-[44px] text-sm flex items-center font-bold transition-colors"
                                         style="color:#FF85A1;"
                                         onmouseover="this.style.color='#B76E79'" onmouseout="this.style.color='#FF85A1'">
-                                        ▼ Ver detalles
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Detalles
                                     </button>
+                                    ${videoBtnHtml}
                                 </div>
                                 ${detailsHtml}
                                 ${videoHtml}
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
+
                 container.innerHTML += html;
             });
+
             updateProgressBar();
         }
 
-        // Restaurar estado del temporizador global al recargar la página
-        if (globalTimerSeconds > 0) {
-            document.getElementById('global-timer').innerText = formatTime(globalTimerSeconds);
-        }
-        if (globalTimerRunning) {
-            // Iniciar con el estado guardado; temporalmente marcamos como no corriendo
-            // para que startGlobalTimer() no lo omita
-            globalTimerRunning = false;
-            startGlobalTimer();
-        }
+        // ── Inicializar ──────────────────────────────────────────────────────────
+        document.getElementById('sound-icon').textContent  = soundEnabled ? '🔔' : '🔕';
+        document.getElementById('sound-label').textContent = soundEnabled ? 'Sonido activado' : 'Sonido desactivado';
 
-        // Inicializar
         renderWorkouts();
+        resumeGlobalTimerIfNeeded();
     </script>
 </body>
 </html>
