@@ -247,6 +247,7 @@
         let restTotalSeconds  = 60;
         let restPaused        = false;
         let soundEnabled      = localStorage.getItem('sound_enabled') !== 'false'; // predeterminado: activo
+        let audioCtx          = null;
 
         // ── Temporizador Global ───────────────────────────────────────────────────
         function formatTime(seconds) {
@@ -358,17 +359,19 @@
 
         function playBeep() {
             try {
-                const ctx        = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = ctx.createOscillator();
-                const gain       = ctx.createGain();
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscillator = audioCtx.createOscillator();
+                const gain       = audioCtx.createGain();
                 oscillator.connect(gain);
-                gain.connect(ctx.destination);
-                oscillator.type          = 'sine';
+                gain.connect(audioCtx.destination);
+                oscillator.type            = 'sine';
                 oscillator.frequency.value = 880;
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-                oscillator.start(ctx.currentTime);
-                oscillator.stop(ctx.currentTime + 0.6);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.6);
             } catch (e) { /* Audio no disponible */ }
         }
 
