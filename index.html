@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beginner Workout Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth transitions for expanding the video */
+        .video-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out;
+        }
+        .video-wrapper.open {
+            max-height: 500px;
+            margin-top: 1rem;
+        }
+        .aspect-w-16 { position: relative; padding-bottom: 56.25%; }
+        .aspect-w-16 iframe { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* Custom Checkbox Styling */
+        input[type="checkbox"]:checked + label { text-decoration: line-through; color: #9ca3af; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen py-8 px-4 font-sans text-slate-800">
+
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold tracking-wide">Full Body Workout</h1>
+            <p class="text-indigo-200 mt-1 text-sm">Beginner friendly • Check off as you go</p>
+        </div>
+
+        <div class="bg-slate-100 p-4 border-b border-slate-200 flex items-center justify-between">
+            <div class="w-full bg-slate-300 rounded-full h-2.5 mr-4">
+                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <span id="progress-text" class="text-sm font-medium text-slate-600 whitespace-nowrap">0 / 6</span>
+        </div>
+
+        <div id="workout-list" class="divide-y divide-slate-100">
+            </div>
+
+        <div class="p-6 bg-slate-50 text-center border-t border-slate-200">
+            <button onclick="resetProgress()" class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors">
+                ↺ Reset Workout Progress
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Workout Data with YouTube IDs from the tutorials
+        const workouts = [
+            { id: "legpress", name: "Leg Press", sets: "3 sets of 10 reps", videoId: "nDh_BlnLCGc" },
+            { id: "latpull", name: "Lat Pull Downs", sets: "3 sets of 10 reps", videoId: "AOpi-p0cJkc" },
+            { id: "forwardfly", name: "Forward Fly (Pec Deck)", sets: "3 sets of 10 reps", videoId: "g3T7LsEeDWQ" },
+            { id: "goblet", name: "Weighted Squat (Goblet)", sets: "3 sets of 12 reps", videoId: "9KzZD_n2r64" },
+            { id: "rdl", name: "Dumbbell RDL (Deadlift)", sets: "3 sets of 10 reps", videoId: "hQgFixeXdZo" },
+            { id: "incline", name: "Incline Walk", sets: "5 minutes", videoId: null, note: "Cool down and finish off strong." }
+        ];
+
+        // State management
+        let progress = JSON.parse(localStorage.getItem('workout_progress')) || {};
+
+        function saveProgress() {
+            localStorage.setItem('workout_progress', JSON.stringify(progress));
+            updateProgressBar();
+        }
+
+        function toggleVideo(id) {
+            const wrapper = document.getElementById(`video-${id}`);
+            wrapper.classList.toggle('open');
+        }
+
+        function updateProgressBar() {
+            const total = workouts.length;
+            const completed = Object.values(progress).filter(Boolean).length;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${completed} / ${total}`;
+        }
+
+        function resetProgress() {
+            if(confirm("Are you sure you want to reset today's progress?")) {
+                progress = {};
+                saveProgress();
+                renderWorkouts();
+            }
+        }
+
+        function renderWorkouts() {
+            const container = document.getElementById('workout-list');
+            container.innerHTML = '';
+
+            workouts.forEach((workout) => {
+                const isChecked = progress[workout.id] ? 'checked' : '';
+                
+                let videoHtml = '';
+                let videoBtnHtml = '';
+
+                if (workout.videoId) {
+                    videoBtnHtml = `
+                        <button onclick="toggleVideo('${workout.id}')" class="text-sm flex items-center text-indigo-600 hover:text-indigo-800 mt-2 font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                            Tutorial
+                        </button>
+                    `;
+                    videoHtml = `
+                        <div id="video-${workout.id}" class="video-wrapper">
+                            <div class="aspect-w-16 rounded-lg overflow-hidden bg-slate-900">
+                                <iframe src="https://www.youtube.com/embed/${workout.videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const extraNote = workout.note ? `<p class="text-xs text-slate-500 mt-1">${workout.note}</p>` : '';
+
+                const html = `
+                    <div class="p-4 md:p-6 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 pt-1">
+                                <input type="checkbox" id="check-${workout.id}" ${isChecked} 
+                                    class="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                    onchange="progress['${workout.id}'] = this.checked; saveProgress();">
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <label for="check-${workout.id}" class="cursor-pointer block">
+                                    <span class="text-lg font-semibold text-slate-800 block">${workout.name}</span>
+                                    <span class="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md inline-block mt-1">${workout.sets}</span>
+                                </label>
+                                ${extraNote}
+                                ${videoBtnHtml}
+                                ${videoHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+            updateProgressBar();
+        }
+
+        // Initialize
+        renderWorkouts();
+    </script>
+</body>
+</html>
