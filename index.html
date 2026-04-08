@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-MX">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beginner Workout Plan</title>
+    <title>Plan de Ejercicio para Principiantes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Smooth transitions for expanding the video */
+        /* Transiciones para expandir video */
         .video-wrapper {
             max-height: 0;
             overflow: hidden;
@@ -16,136 +16,526 @@
             max-height: 500px;
             margin-top: 1rem;
         }
+
+        /* Transiciones para expandir detalles */
+        .details-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s ease-in-out;
+        }
+        .details-wrapper.open {
+            max-height: 800px;
+        }
+
         .aspect-w-16 { position: relative; padding-bottom: 56.25%; }
         .aspect-w-16 iframe { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; }
-        
-        /* Custom Checkbox Styling */
+
+        /* Estilo checkbox */
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #9ca3af; }
+
+        /* Overlay del temporizador de descanso */
+        #rest-timer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 50;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        #rest-timer-overlay.active {
+            display: flex;
+        }
+
+        /* Anillo del temporizador */
+        .timer-ring-circle {
+            transition: stroke-dashoffset 1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen py-8 px-4 font-sans text-slate-800">
+<body class="bg-slate-50 min-h-screen py-6 px-4 font-sans text-slate-800">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        
-        <div class="bg-indigo-600 p-6 text-white text-center">
-            <h1 class="text-2xl font-bold tracking-wide">Full Body Workout</h1>
-            <p class="text-indigo-200 mt-1 text-sm">Beginner friendly • Check off as you go</p>
-        </div>
+    <!-- ── Temporizador de Descanso (hoja inferior móvil) ── -->
+    <div id="rest-timer-overlay">
+        <div class="bg-white w-full max-w-md rounded-t-2xl p-6 text-center shadow-2xl">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tiempo de Descanso</p>
+            <h2 id="rest-exercise-name" class="text-base font-semibold text-slate-700 mb-4 truncate px-2"></h2>
 
-        <div class="bg-slate-100 p-4 border-b border-slate-200 flex items-center justify-between">
-            <div class="w-full bg-slate-300 rounded-full h-2.5 mr-4">
-                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <!-- Anillo de progreso circular -->
+            <div class="flex justify-center mb-5">
+                <div class="relative w-36 h-36">
+                    <svg class="w-36 h-36" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                        <circle id="timer-ring" class="timer-ring-circle" cx="60" cy="60" r="54"
+                            fill="none" stroke="#4f46e5" stroke-width="8"
+                            stroke-dasharray="339.29" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="rest-timer-display" class="text-4xl font-bold text-slate-800 tabular-nums">1:00</span>
+                    </div>
+                </div>
             </div>
-            <span id="progress-text" class="text-sm font-medium text-slate-600 whitespace-nowrap">0 / 6</span>
-        </div>
 
-        <div id="workout-list" class="divide-y divide-slate-100">
+            <!-- Controles -->
+            <div class="flex gap-3 mb-4">
+                <button onclick="addRestTime(30)"
+                    class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-colors">
+                    +30s
+                </button>
+                <button id="rest-pause-btn" onclick="toggleRestPause()"
+                    class="flex-1 py-3 bg-indigo-100 hover:bg-indigo-200 active:bg-indigo-300 text-indigo-700 font-semibold rounded-xl text-sm transition-colors">
+                    Pausar
+                </button>
+                <button onclick="skipRest()"
+                    class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-colors">
+                    Saltar
+                </button>
             </div>
 
-        <div class="p-6 bg-slate-50 text-center border-t border-slate-200">
-            <button onclick="resetProgress()" class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors">
-                ↺ Reset Workout Progress
+            <!-- Alternar sonido -->
+            <button onclick="toggleSound()" class="text-xs text-slate-400 hover:text-slate-600 flex items-center justify-center gap-1 mx-auto py-2 min-h-[44px]">
+                <span id="sound-icon">🔔</span>
+                <span id="sound-label">Sonido activado</span>
             </button>
         </div>
+    </div>
 
+    <!-- ── Tarjeta principal ── -->
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <!-- Encabezado -->
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold tracking-wide">Rutina de Cuerpo Completo</h1>
+            <p class="text-indigo-200 mt-1 text-sm">Amigable para principiantes • Marca conforme avances</p>
+        </div>
+
+        <!-- Barra de progreso + temporizador global -->
+        <div class="bg-slate-100 p-4 border-b border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+                <span id="progress-text" class="text-sm font-medium text-slate-600">0 / 6</span>
+                <span id="global-timer-display" class="text-sm font-semibold text-indigo-600 hidden">
+                    ⏱ Tiempo: <span id="global-timer-value" class="tabular-nums">0:00</span>
+                </span>
+            </div>
+            <div class="w-full bg-slate-300 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Lista de ejercicios -->
+        <div id="workout-list" class="divide-y divide-slate-100"></div>
+
+        <!-- Pie de página -->
+        <div class="p-6 bg-slate-50 text-center border-t border-slate-200">
+            <button onclick="resetProgress()"
+                class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors min-h-[44px]">
+                ↺ Reiniciar Progreso del Ejercicio
+            </button>
+        </div>
     </div>
 
     <script>
-        // Workout Data with YouTube IDs from the tutorials
+        // ── Datos de ejercicios ──────────────────────────────────────────────────
         const workouts = [
-            { id: "legpress", name: "Leg Press", sets: "3 sets of 10 reps", videoId: "nDh_BlnLCGc" },
-            { id: "latpull", name: "Lat Pull Downs", sets: "3 sets of 10 reps", videoId: "AOpi-p0cJkc" },
-            { id: "forwardfly", name: "Forward Fly (Pec Deck)", sets: "3 sets of 10 reps", videoId: "g3T7LsEeDWQ" },
-            { id: "goblet", name: "Weighted Squat (Goblet)", sets: "3 sets of 12 reps", videoId: "9KzZD_n2r64" },
-            { id: "rdl", name: "Dumbbell RDL (Deadlift)", sets: "3 sets of 10 reps", videoId: "hQgFixeXdZo" },
-            { id: "incline", name: "Incline Walk", sets: "5 minutes", videoId: null, note: "Cool down and finish off strong." }
+            {
+                id: "legpress",
+                name: "Prensa de Piernas",
+                sets: "3 series de 10 repeticiones",
+                videoId: "nDh_BlnLCGc",
+                difficulty: "Principiante",
+                target: "Cuádriceps, Glúteos, Isquiotibiales",
+                instructions: [
+                    "Siéntate con la espalda plana contra el respaldo",
+                    "Coloca los pies al ancho de los hombros en la plataforma",
+                    "Empuja con los talones para extender las piernas",
+                    "Baja con control, sin bloquear las rodillas"
+                ],
+                tips: "Mantén la espalda pegada al asiento y no dejes que las rodillas se doblen hacia adentro."
+            },
+            {
+                id: "latpull",
+                name: "Jalones Dorsales",
+                sets: "3 series de 10 repeticiones",
+                videoId: "AOpi-p0cJkc",
+                difficulty: "Principiante",
+                target: "Dorsal Ancho (espalda), Bíceps",
+                instructions: [
+                    "Agarra la barra más ancha que el ancho de los hombros",
+                    "Jala la barra hacia la parte superior del pecho",
+                    "Aprieta los omóplatos juntos al bajar",
+                    "Regresa al inicio con control"
+                ],
+                tips: "No te recuestes demasiado; enfócate en jalar con la espalda, no con los brazos."
+            },
+            {
+                id: "forwardfly",
+                name: "Apertura Frontal (Pec Deck)",
+                sets: "3 series de 10 repeticiones",
+                videoId: "g3T7LsEeDWQ",
+                difficulty: "Principiante",
+                target: "Pecho (Pectorales), Deltoides Anteriores",
+                instructions: [
+                    "Ajusta el asiento para que los mangos queden a la altura del pecho",
+                    "Presiona los brazos juntos frente al pecho",
+                    "Aprieta los músculos del pecho al cerrar",
+                    "Regresa al inicio lentamente"
+                ],
+                tips: "Mantén una ligera flexión en los codos y no dejes que los brazos vayan demasiado atrás."
+            },
+            {
+                id: "goblet",
+                name: "Sentadilla con Peso (Goblet)",
+                sets: "3 series de 12 repeticiones",
+                videoId: "9KzZD_n2r64",
+                difficulty: "Principiante",
+                target: "Cuádriceps, Glúteos, Core",
+                instructions: [
+                    "Sostén la mancuerna a la altura del pecho con ambas manos",
+                    "Coloca los pies al ancho de los hombros",
+                    "Baja las caderas hasta quedar por debajo del paralelo",
+                    "Empuja con los talones para ponerte de pie"
+                ],
+                tips: "Mantén el pecho arriba, el peso en los talones y las rodillas alineadas con los pies."
+            },
+            {
+                id: "rdl",
+                name: "Peso Muerto con Mancuernas (RDL)",
+                sets: "3 series de 10 repeticiones",
+                videoId: "hQgFixeXdZo",
+                difficulty: "Principiante",
+                target: "Isquiotibiales, Glúteos, Zona Lumbar",
+                instructions: [
+                    "Sostén las mancuernas frente a los muslos",
+                    "Inclínate desde las caderas con leve flexión de rodillas",
+                    "Baja las pesas a lo largo de las piernas",
+                    "Siente el estiramiento en los isquiotibiales y regresa a la posición inicial"
+                ],
+                tips: "Mantén la espalda recta, empuja las caderas hacia atrás (no hacia abajo) y no redondees la espalda."
+            },
+            {
+                id: "incline",
+                name: "Caminata Inclinada",
+                sets: "5 minutos",
+                videoId: null,
+                note: "Enfriamiento — ¡termina con fuerza!",
+                difficulty: "Principiante",
+                target: "Cardiovascular, Piernas (ligero)",
+                instructions: [
+                    "Ajusta la caminadora a 8–12 % de inclinación",
+                    "Camina a un ritmo cómodo (4–5.5 km/h)",
+                    "Mantén buena postura con los hombros hacia atrás",
+                    "Continúa durante 5 minutos sin parar"
+                ],
+                tips: "No te sostengas de los rieles; deja que las piernas hagan el trabajo."
+            }
         ];
 
-        // State management
+        // ── Estado ───────────────────────────────────────────────────────────────
         let progress = JSON.parse(localStorage.getItem('workout_progress')) || {};
 
+        // Temporizador global
+        let globalTimerInterval = null;
+        let globalTimerStart    = parseInt(localStorage.getItem('workout_timer_start'))   || null;
+        let globalTimerElapsed  = parseInt(localStorage.getItem('workout_timer_elapsed')) || 0;
+        let workoutCompleted    = localStorage.getItem('workout_completed') === 'true';
+
+        // Temporizador de descanso
+        let restTimerInterval = null;
+        let restSecondsLeft   = 0;
+        let restTotalSeconds  = 60;
+        let restPaused        = false;
+        let soundEnabled      = localStorage.getItem('sound_enabled') !== 'false'; // predeterminado: activo
+        let audioCtx          = null;
+
+        // ── Temporizador Global ───────────────────────────────────────────────────
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function startGlobalTimer() {
+            if (globalTimerInterval || workoutCompleted) return;
+            if (!globalTimerStart) {
+                globalTimerStart = Date.now() - (globalTimerElapsed * 1000);
+                localStorage.setItem('workout_timer_start', globalTimerStart);
+            }
+            document.getElementById('global-timer-display').classList.remove('hidden');
+            globalTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - globalTimerStart) / 1000);
+                globalTimerElapsed = elapsed;
+                localStorage.setItem('workout_timer_elapsed', elapsed);
+                document.getElementById('global-timer-value').textContent = formatTime(elapsed);
+            }, 1000);
+        }
+
+        function stopGlobalTimer() {
+            clearInterval(globalTimerInterval);
+            globalTimerInterval = null;
+        }
+
+        function resumeGlobalTimerIfNeeded() {
+            const completed = Object.values(progress).filter(Boolean).length;
+            if (workoutCompleted && globalTimerElapsed > 0) {
+                document.getElementById('global-timer-display').classList.remove('hidden');
+                document.getElementById('global-timer-value').textContent = formatTime(globalTimerElapsed);
+            } else if (completed > 0 && globalTimerStart) {
+                document.getElementById('global-timer-display').classList.remove('hidden');
+                document.getElementById('global-timer-value').textContent =
+                    formatTime(Math.floor((Date.now() - globalTimerStart) / 1000));
+                startGlobalTimer();
+            }
+        }
+
+        // ── Temporizador de Descanso ──────────────────────────────────────────────
+        function startRestTimer(workoutName) {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            restSecondsLeft  = 60;
+            restTotalSeconds = 60;
+            restPaused       = false;
+
+            document.getElementById('rest-exercise-name').textContent = workoutName;
+            document.getElementById('rest-pause-btn').textContent = 'Pausar';
+            updateRestTimerUI();
+            document.getElementById('rest-timer-overlay').classList.add('active');
+
+            restTimerInterval = setInterval(() => {
+                if (!restPaused) {
+                    restSecondsLeft--;
+                    updateRestTimerUI();
+                    if (restSecondsLeft <= 0) {
+                        clearInterval(restTimerInterval);
+                        restTimerInterval = null;
+                        onRestComplete();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateRestTimerUI() {
+            document.getElementById('rest-timer-display').textContent = formatTime(restSecondsLeft);
+            const circumference = 339.29;
+            const pct    = restTotalSeconds > 0 ? restSecondsLeft / restTotalSeconds : 0;
+            const offset = circumference * (1 - pct);
+            const ring   = document.getElementById('timer-ring');
+            ring.style.strokeDashoffset = offset;
+            ring.style.stroke = restSecondsLeft <= 10 ? '#ef4444' : '#4f46e5';
+        }
+
+        function onRestComplete() {
+            if (soundEnabled) playBeep();
+            if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+            setTimeout(() => {
+                document.getElementById('rest-timer-overlay').classList.remove('active');
+            }, 1200);
+        }
+
+        function toggleRestPause() {
+            restPaused = !restPaused;
+            document.getElementById('rest-pause-btn').textContent = restPaused ? 'Reanudar' : 'Pausar';
+        }
+
+        function addRestTime(seconds) {
+            restSecondsLeft  += seconds;
+            restTotalSeconds += seconds;
+            updateRestTimerUI();
+        }
+
+        function skipRest() {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            document.getElementById('rest-timer-overlay').classList.remove('active');
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('sound_enabled', soundEnabled);
+            document.getElementById('sound-icon').textContent  = soundEnabled ? '🔔' : '🔕';
+            document.getElementById('sound-label').textContent = soundEnabled ? 'Sonido activado' : 'Sonido desactivado';
+        }
+
+        function playBeep() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscillator = audioCtx.createOscillator();
+                const gain       = audioCtx.createGain();
+                oscillator.connect(gain);
+                gain.connect(audioCtx.destination);
+                oscillator.type            = 'sine';
+                oscillator.frequency.value = 880;
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.6);
+            } catch (e) { /* Audio no disponible */ }
+        }
+
+        // ── Progreso ─────────────────────────────────────────────────────────────
         function saveProgress() {
             localStorage.setItem('workout_progress', JSON.stringify(progress));
             updateProgressBar();
         }
 
-        function toggleVideo(id) {
-            const wrapper = document.getElementById(`video-${id}`);
-            wrapper.classList.toggle('open');
+        function updateProgressBar() {
+            const total     = workouts.length;
+            const completed = Object.values(progress).filter(Boolean).length;
+            const pct       = (completed / total) * 100;
+
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').textContent = `${completed} / ${total}`;
+
+            if (completed === total && total > 0) {
+                workoutCompleted = true;
+                localStorage.setItem('workout_completed', 'true');
+                stopGlobalTimer();
+            }
         }
 
-        function updateProgressBar() {
-            const total = workouts.length;
-            const completed = Object.values(progress).filter(Boolean).length;
-            const percentage = (completed / total) * 100;
-            
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
-            document.getElementById('progress-text').innerText = `${completed} / ${total}`;
+        function onExerciseChecked(id, checked) {
+            progress[id] = checked;
+            saveProgress();
+            if (checked) {
+                startGlobalTimer();
+                const workout = workouts.find(w => w.id === id);
+                if (workout) startRestTimer(workout.name);
+            }
         }
 
         function resetProgress() {
-            if(confirm("Are you sure you want to reset today's progress?")) {
+            if (confirm('¿Estás segura que quieres reiniciar el progreso de hoy?')) {
                 progress = {};
                 saveProgress();
+                stopGlobalTimer();
+                globalTimerStart   = null;
+                globalTimerElapsed = 0;
+                workoutCompleted   = false;
+                localStorage.removeItem('workout_timer_start');
+                localStorage.removeItem('workout_timer_elapsed');
+                localStorage.removeItem('workout_completed');
+                document.getElementById('global-timer-display').classList.add('hidden');
+                document.getElementById('global-timer-value').textContent = '0:00';
                 renderWorkouts();
             }
         }
 
+        // ── Alternar secciones ───────────────────────────────────────────────────
+        function toggleVideo(id) {
+            document.getElementById(`video-${id}`).classList.toggle('open');
+        }
+
+        function toggleDetails(id) {
+            document.getElementById(`details-${id}`).classList.toggle('open');
+        }
+
+        // ── Renderizar ───────────────────────────────────────────────────────────
         function renderWorkouts() {
             const container = document.getElementById('workout-list');
             container.innerHTML = '';
 
             workouts.forEach((workout) => {
                 const isChecked = progress[workout.id] ? 'checked' : '';
-                
-                let videoHtml = '';
-                let videoBtnHtml = '';
 
+                // Sección de video
+                let videoHtml    = '';
+                let videoBtnHtml = '';
                 if (workout.videoId) {
                     videoBtnHtml = `
-                        <button onclick="toggleVideo('${workout.id}')" class="text-sm flex items-center text-indigo-600 hover:text-indigo-800 mt-2 font-medium">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        <button onclick="toggleVideo('${workout.id}')"
+                            class="min-h-[44px] text-sm flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                            </svg>
                             Tutorial
-                        </button>
-                    `;
+                        </button>`;
                     videoHtml = `
                         <div id="video-${workout.id}" class="video-wrapper">
                             <div class="aspect-w-16 rounded-lg overflow-hidden bg-slate-900">
-                                <iframe src="https://www.youtube.com/embed/${workout.videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <iframe src="https://www.youtube.com/embed/${workout.videoId}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 }
 
-                const extraNote = workout.note ? `<p class="text-xs text-slate-500 mt-1">${workout.note}</p>` : '';
+                // Sección de detalles
+                const stepsHtml = workout.instructions.map((step, i) =>
+                    `<li class="flex gap-2 text-slate-600">
+                        <span class="font-bold text-indigo-500 flex-shrink-0 w-5 text-right">${i + 1}.</span>
+                        <span>${step}</span>
+                    </li>`
+                ).join('');
+
+                const detailsHtml = `
+                    <div id="details-${workout.id}" class="details-wrapper">
+                        <div class="bg-slate-50 rounded-xl p-4 mt-3 text-sm space-y-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-semibold">${workout.difficulty}</span>
+                                <span class="text-slate-500 text-xs">🎯 ${workout.target}</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-700 mb-1.5">Instrucciones:</p>
+                                <ol class="space-y-1.5">${stepsHtml}</ol>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-700 mb-1">💡 Consejo:</p>
+                                <p class="text-slate-600">${workout.tips}</p>
+                            </div>
+                        </div>
+                    </div>`;
+
+                const extraNote = workout.note
+                    ? `<p class="text-xs text-slate-500 mt-1">${workout.note}</p>`
+                    : '';
 
                 const html = `
-                    <div class="p-4 md:p-6 hover:bg-slate-50 transition-colors">
+                    <div class="p-4 md:p-5 hover:bg-slate-50 transition-colors">
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
-                                <input type="checkbox" id="check-${workout.id}" ${isChecked} 
-                                    class="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                                    onchange="progress['${workout.id}'] = this.checked; saveProgress();">
+                                <input type="checkbox" id="check-${workout.id}" ${isChecked}
+                                    class="w-6 h-6 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                    onchange="onExerciseChecked('${workout.id}', this.checked)">
                             </div>
-                            <div class="ml-4 flex-1">
+                            <div class="ml-4 flex-1 min-w-0">
                                 <label for="check-${workout.id}" class="cursor-pointer block">
-                                    <span class="text-lg font-semibold text-slate-800 block">${workout.name}</span>
-                                    <span class="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md inline-block mt-1">${workout.sets}</span>
+                                    <span class="text-base font-semibold text-slate-800 block">${workout.name}</span>
+                                    <span class="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">${workout.sets}</span>
                                 </label>
                                 ${extraNote}
-                                ${videoBtnHtml}
+                                <div class="flex flex-wrap gap-x-4">
+                                    <button onclick="toggleDetails('${workout.id}')"
+                                        class="min-h-[44px] text-sm flex items-center text-slate-500 hover:text-indigo-600 font-medium transition-colors">
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Detalles
+                                    </button>
+                                    ${videoBtnHtml}
+                                </div>
+                                ${detailsHtml}
                                 ${videoHtml}
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
+
                 container.innerHTML += html;
             });
+
             updateProgressBar();
         }
 
-        // Initialize
+        // ── Inicializar ──────────────────────────────────────────────────────────
+        document.getElementById('sound-icon').textContent  = soundEnabled ? '🔔' : '🔕';
+        document.getElementById('sound-label').textContent = soundEnabled ? 'Sonido activado' : 'Sonido desactivado';
+
         renderWorkouts();
+        resumeGlobalTimerIfNeeded();
     </script>
 </body>
 </html>
