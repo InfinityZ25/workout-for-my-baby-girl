@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Camino al Matrimonio 💍</title>
+    <meta name="description" content="El camino oficial para casarnos y construir nuestra vida juntos en Orlando.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-pink':  '#FF69B4',
+                        'soft-pink': '#FFB6C1',
+                        'blush':     '#FFF5F7',
+                        'pale-pink': '#FFE4E9',
+                        'baby-pink': '#FFE0E9',
+                        'rose-gold': '#B76E79',
+                        'dark-rose': '#5C3344',
+                        'mauve':     '#8B5A7C',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Quicksand', sans-serif; }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #FF69B4 0%, #FF85A1 50%, #FFB6C1 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 24px rgba(255, 105, 180, 0.15);
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.85); }
+        }
+        .sparkle { animation: sparkle 2.2s ease-in-out infinite; }
+
+        .step-card {
+            border-left: 4px solid #FF69B4;
+            background: linear-gradient(to right, #FFF5F7, #fff);
+        }
+
+        .oath-card {
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFF5F7 100%);
+            border: 2px solid #FFB6C1;
+        }
+
+        .timeline-dot {
+            background: #FF69B4;
+            box-shadow: 0 0 0 4px #FFE4E9;
+        }
+
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 0.6rem 1rem; text-align: left; }
+        th { background: #FFE4E9; color: #5C3344; }
+        tr:nth-child(even) td { background: #FFF5F7; }
+        td { color: #5C3344; border-bottom: 1px solid #FFD6E7; }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4" style="background-color:#FFF5F7; color:#5C3344;">
+
+    <!-- Back link -->
+    <div class="max-w-2xl mx-auto mb-4">
+        <a href="/" class="text-sm font-semibold transition-colors" style="color:#B76E79;"
+           onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
+            ← Volver al inicio
+        </a>
+    </div>
+
+    <!-- Main card -->
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl overflow-hidden card-shadow border border-pink-100">
+
+        <!-- Header -->
+        <div class="header-gradient p-6 text-white text-center relative overflow-hidden">
+            <div class="absolute top-2 left-4 text-2xl sparkle opacity-75">✨</div>
+            <div class="absolute top-4 right-6 text-xl sparkle opacity-65" style="animation-delay:0.6s;">💕</div>
+            <div class="absolute bottom-3 left-8 text-lg opacity-55" style="animation-delay:1.1s;">🌸</div>
+            <div class="absolute bottom-2 right-4 text-2xl sparkle opacity-65" style="animation-delay:1.7s;">💍</div>
+            <h1 class="text-2xl font-bold tracking-wide">💍 Nuestro Camino al Matrimonio</h1>
+            <p class="mt-1 text-sm" style="opacity:0.92;">El plan oficial para casarnos y vivir juntos en Orlando 🌸</p>
+        </div>
+
+        <div class="p-6 space-y-8">
+
+            <!-- Juramento / Oath -->
+            <section class="oath-card rounded-2xl p-6 text-center">
+                <p class="text-2xl mb-3">💌</p>
+                <h2 class="text-lg font-bold mb-4" style="color:#5C3344;">Nuestro Juramento</h2>
+                <p class="text-base leading-relaxed italic" style="color:#8B5A7C;">
+                    "Yo te elijo a ti. Te elijo hoy, cuando nos casemos en Orlando, y te elegiré todos los días que vengan después.
+                    Este proceso no es solo papeleo — es la promesa de construir una vida real juntos.
+                    Esperaré el tiempo que sea necesario, porque lo que tenemos vale cada mes, cada firma y cada vuelo.
+                    Tú eres mi hogar, sin importar en qué país amanecemos."
+                </p>
+                <p class="text-sm mt-4 font-semibold" style="color:#B76E79;">— Con todo mi amor, siempre 💕</p>
+            </section>
+
+            <!-- Big-picture timeline -->
+            <section>
+                <h2 class="text-base font-bold mb-3 flex items-center gap-2" style="color:#5C3344;">
+                    🗓️ Línea de tiempo general
+                </h2>
+                <div class="rounded-xl p-4 space-y-2 text-sm" style="background:#FFF0F5;">
+                    <div class="flex justify-between items-center py-1 border-b" style="border-color:#FFD6E7;">
+                        <span class="font-semibold">🚀 Optimista</span>
+                        <span style="color:#B76E79;">12 – 15 meses</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b" style="border-color:#FFD6E7;">
+                        <span class="font-semibold">📅 Normal</span>
+                        <span style="color:#B76E79;">15 – 22 meses</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="font-semibold">🐢 Lento</span>
+                        <span style="color:#B76E79;">24+ meses</span>
+                    </div>
+                </div>
+                <p class="text-xs mt-2 leading-relaxed" style="color:#B76E79;">
+                    Los cónyuges de ciudadanos estadounidenses son "familiares inmediatos" — no hay lista de espera por categoría de visa.
+                    La espera es principalmente tiempo de procesamiento del gobierno, no falta de cupos.
+                </p>
+            </section>
+
+            <!-- Steps -->
+            <section>
+                <h2 class="text-base font-bold mb-4 flex items-center gap-2" style="color:#5C3344;">
+                    📋 El camino paso a paso
+                </h2>
+                <div class="space-y-4">
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 1</p>
+                        <h3 class="font-bold mb-1">✈️ Ella visita Orlando con su visa de turista</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Visita real: viaje temporal, boleto de regreso, vida activa en México.
+                            Puede viajar, conocer a la familia y casarse durante la visita.
+                            En la frontera: honesta y clara — viene a visitar y regresará a México.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 2</p>
+                        <h3 class="font-bold mb-1">💍 Nos casamos legalmente en Orlando</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Licencia de matrimonio de Florida → ceremonia/juzgado → acta de matrimonio oficial.
+                            Después de la boda, ella regresa a México.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 3</p>
+                        <h3 class="font-bold mb-1">📄 Presentar el Formulario I-130</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Inmediatamente después de obtener el acta. Es la petición oficial:
+                            "Soy ciudadano americano y ella es mi esposa legal."
+                            Se incluye evidencia del matrimonio real: fotos, mensajes, viajes, contratos compartidos, etc.
+                            Costo aproximado: $625 – $675 USD.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 4</p>
+                        <h3 class="font-bold mb-1">⏳ Esperar aprobación del USCIS</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Generalmente la etapa más larga: ~10–15 meses.
+                            Ella sigue su vida normal en México.
+                            Puede visitar EE.UU. con su visa de turista, pero cada entrada es discrecional —
+                            llevar siempre boleto de regreso y pruebas de vínculos en México.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 5</p>
+                        <h3 class="font-bold mb-1">🏛️ Etapa NVC (Centro Nacional de Visas)</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Después de la aprobación del I-130, el caso pasa al NVC (~1–3 meses).
+                            Se pagan cuotas y se suben documentos en línea.
+                        </p>
+                        <div class="mt-3 rounded-lg overflow-hidden text-sm">
+                            <table>
+                                <thead><tr><th>Concepto</th><th>Monto</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Revisión Declaración Jurada de Sostenimiento</td><td>$120 USD</td></tr>
+                                    <tr><td>Solicitud de visa de inmigrante</td><td>$325 USD</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 6</p>
+                        <h3 class="font-bold mb-1">💼 Formulario I-864 — Patrocinio financiero</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Prueba de que puedes mantenerla económicamente.
+                            Se necesita ingreso de al menos el 125 % de la Guía Federal de Pobreza para hogar de 2 personas.
+                            Documentos clave: declaraciones de impuestos, W-2, talones de pago, carta de empleo.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 7</p>
+                        <h3 class="font-bold mb-1">📁 Ella presenta sus documentos civiles</h3>
+                        <p class="text-sm leading-relaxed mb-2" style="color:#8B5A7C;">
+                            Una vez que el NVC acepta todo, el caso queda "documentalmente completo."
+                        </p>
+                        <ul class="text-sm space-y-1 list-inside" style="color:#8B5A7C;">
+                            <li>🛂 Pasaporte mexicano vigente</li>
+                            <li>📜 Acta de nacimiento</li>
+                            <li>💑 Acta de matrimonio</li>
+                            <li>🚔 Antecedentes penales (si se requieren)</li>
+                            <li>📸 Fotos tamaño pasaporte</li>
+                            <li>📝 Formulario DS-260 (solicitud de visa)</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 8</p>
+                        <h3 class="font-bold mb-1">🏥 Entrevista en Ciudad Juárez</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            El consulado principal para visas de inmigrante mexicano es Ciudad Juárez.
+                            Antes de la entrevista: examen médico + biométricos.
+                            Examen médico: ~$323 USD + 16 % de impuesto, más vacunas si se requieren.
+                            Planear al menos 3 días hábiles en Ciudad Juárez.
+                        </p>
+                    </div>
+
+                    <div class="step-card rounded-xl p-4">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:#B76E79;">Paso 9</p>
+                        <h3 class="font-bold mb-1">🌟 Aprobación y entrada a EE.UU.</h3>
+                        <p class="text-sm leading-relaxed" style="color:#8B5A7C;">
+                            Con la visa de inmigrante en su pasaporte, al entrar a EE.UU. se convierte en
+                            <strong>residente permanente legal</strong> — puede vivir y trabajar en Orlando.
+                            Si llevamos menos de 2 años casados al entrar: tarjeta verde condicional por 2 años.
+                            Si llevamos 2+ años: tarjeta verde de 10 años.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Cost estimate -->
+            <section>
+                <h2 class="text-base font-bold mb-3 flex items-center gap-2" style="color:#5C3344;">
+                    💰 Estimado de costos
+                </h2>
+                <div class="rounded-xl overflow-hidden text-sm">
+                    <table>
+                        <thead><tr><th>Concepto</th><th>Estimado</th></tr></thead>
+                        <tbody>
+                            <tr><td>I-130</td><td>$625 – $675 USD</td></tr>
+                            <tr><td>NVC — Declaración Jurada de Sostenimiento</td><td>$120 USD</td></tr>
+                            <tr><td>NVC — Solicitud de visa de inmigrante</td><td>$325 USD</td></tr>
+                            <tr><td>Examen médico en México</td><td>~$375+ USD</td></tr>
+                            <tr><td>Cuota USCIS para producción de tarjeta verde</td><td>~$235 USD</td></tr>
+                            <tr><td>Documentos, traducciones, fotos, copias</td><td>$100 – $300 USD</td></tr>
+                            <tr><td>Viaje a Ciudad Juárez (vuelos + hotel + comida)</td><td>$500 – $1,500 USD</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 rounded-xl p-4 text-sm space-y-1" style="background:#FFF0F5;">
+                    <p><span class="font-bold">Sin abogado:</span> <span style="color:#B76E79;">~$2,000 – $3,500 USD</span></p>
+                    <p><span class="font-bold">Con abogado:</span> <span style="color:#B76E79;">~$5,000 – $9,000+ USD</span></p>
+                </div>
+            </section>
+
+            <!-- Practical recommendation -->
+            <section class="rounded-2xl p-5" style="background:linear-gradient(135deg,#FFF0F5,#FFF5F7); border:2px solid #FFB6C1;">
+                <h2 class="text-base font-bold mb-3 flex items-center gap-2" style="color:#5C3344;">
+                    🌹 El plan más limpio para nosotros
+                </h2>
+                <div class="flex items-start gap-3 text-sm leading-relaxed" style="color:#8B5A7C;">
+                    <p>
+                        <strong>Visita Orlando → nos casamos → ella regresa a México → presentamos el I-130 de inmediato
+                        → vivimos en CDMX mientras esperamos → terminamos NVC/entrevista → nos mudamos a Orlando
+                        después de que se apruebe la visa.</strong>
+                    </p>
+                </div>
+                <p class="text-sm mt-3 leading-relaxed" style="color:#8B5A7C;">
+                    Empezamos a recolectar evidencia <em>ahora mismo</em>: fotos juntos, viajes, contratos de renta,
+                    facturas compartidas, mensajes de familia, planes de boda — todo lo que muestre que esto es
+                    una vida real juntos, no solo un papel.
+                </p>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-5 text-center border-t" style="background:#FFF5F7; border-color:#FFD6E7;">
+            <p class="text-sm font-semibold" style="color:#B76E79;">
+                Con amor y sin prisa, porque lo nuestro vale la espera 💕
+            </p>
+            <a href="/" class="mt-2 block text-xs transition-colors" style="color:#B76E79;"
+               onmouseover="this.style.color='#5C3344'" onmouseout="this.style.color='#B76E79'">
+                ← Volver al inicio
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
